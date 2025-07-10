@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          first_name: string
+          full_name: string
+          id: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          first_name: string
+          full_name: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          ctc_lpa: string | null
+          deadline: string
+          id: string
+          is_completed: boolean | null
+          job_role: string | null
+          notes: string | null
+          priority: Database["public"]["Enums"]["task_priority"]
+          progress: number | null
+          task_type: Database["public"]["Enums"]["task_type"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          ctc_lpa?: string | null
+          deadline: string
+          id?: string
+          is_completed?: boolean | null
+          job_role?: string | null
+          notes?: string | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          progress?: number | null
+          task_type?: Database["public"]["Enums"]["task_type"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          ctc_lpa?: string | null
+          deadline?: string
+          id?: string
+          is_completed?: boolean | null
+          job_role?: string | null
+          notes?: string | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          progress?: number | null
+          task_type?: Database["public"]["Enums"]["task_type"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +103,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      task_priority: "low" | "medium" | "high"
+      task_type:
+        | "placement_reminder"
+        | "team_meeting"
+        | "assignment_submission"
+        | "project_deadline"
+        | "resume_review"
+        | "custom"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +237,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      task_priority: ["low", "medium", "high"],
+      task_type: [
+        "placement_reminder",
+        "team_meeting",
+        "assignment_submission",
+        "project_deadline",
+        "resume_review",
+        "custom",
+      ],
+    },
   },
 } as const
