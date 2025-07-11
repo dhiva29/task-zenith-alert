@@ -44,7 +44,7 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
         <div className="text-center space-y-2 animate-fade-in">
           <div className="text-4xl mb-2">👋</div>
           <h2 className="text-2xl font-bold text-primary">
-            Welcome, {profile?.first_name}!
+            Hi {profile?.first_name || 'User'}
           </h2>
           <p className="text-muted-foreground">
             Ready to manage your tasks efficiently
