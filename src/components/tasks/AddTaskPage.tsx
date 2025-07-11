@@ -79,10 +79,12 @@ export const AddTaskPage = ({ onNavigate }: AddTaskPageProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submission:', { user: !!user, title, deadline });
+    
     if (!user || !title || !deadline) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: `Please fill in all required fields. Missing: ${!user ? 'user ' : ''}${!title ? 'title ' : ''}${!deadline ? 'deadline' : ''}`,
         variant: "destructive"
       });
       return;
