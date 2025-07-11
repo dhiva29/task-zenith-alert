@@ -43,11 +43,30 @@ export const useAuth = () => {
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return;
       
-      // Don't update state here, let onAuthStateChange handle it
-      // This prevents race conditions
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        // Fetch user profile
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (mounted) {
+          setProfile(profileData);
+        }
+      } else {
+        setProfile(null);
+      }
+      
+      if (mounted) {
+        setLoading(false);
+      }
     });
 
     return () => {
