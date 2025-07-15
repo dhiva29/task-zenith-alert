@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase.ts";
 import { toast } from "sonner";
 import { useUser } from "@/lib/UserContext"; // Make sure this import is here
 
