@@ -12,7 +12,6 @@ export const useAuth = () => {
 
   useEffect(() => {
     let mounted = true;
-    let initialSessionChecked = false;
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -37,8 +36,7 @@ export const useAuth = () => {
           setProfile(null);
         }
         
-        // Only set loading to false after initial session check or auth state change
-        if (mounted && (initialSessionChecked || event !== 'INITIAL_SESSION')) {
+        if (mounted) {
           setLoading(false);
         }
       }
@@ -48,7 +46,6 @@ export const useAuth = () => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return;
       
-      initialSessionChecked = true;
       setSession(session);
       setUser(session?.user ?? null);
       
