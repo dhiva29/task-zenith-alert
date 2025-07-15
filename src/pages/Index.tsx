@@ -1,53 +1,55 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { LoginPage } from '@/components/auth/LoginPage';
-import { Header } from '@/components/layout/Header';
-import { HomePage } from '@/components/home/HomePage';
-import { AddTaskPage } from '@/components/tasks/AddTaskPage';
-import { TasksPage } from '@/components/tasks/TasksPage';
-import { RemindersPage } from '@/components/reminders/RemindersPage';
-import { Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+import { useUser } from "@/lib/UserContext"; // Make sure this import is here
 
-const Index = () => {
-  const { user, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState('home');
+import { Button } from "@/components/ui/button";
+import TaskForm from "@/components/TaskForm";
 
-  // Reset to home when user changes
-  useEffect(() => {
-    setCurrentPage('home');
-  }, [user]);
+const NewTaskPage = () => {
+  const navigate = useNavigate();
+  const { user } = useUser(); // 1. GET THE CURRENT USER
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const createTask = async (formData) => {
+    const { title, type, priority, deadline, notes } = formData;
 
-  if (!user) {
-    return <LoginPage />;
-  }
+    if (!title || !type || !priority || !deadline) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    
+    // Check if user exists before trying to access user.id
+    if (!user) {
+      toast.error("You must be logged in to create a task.");
+      return;
+    }
 
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'add-task':
-        return <AddTaskPage onNavigate={setCurrentPage} />;
-      case 'tasks':
-        return <TasksPage onNavigate={setCurrentPage} />;
-      case 'reminders':
-        return <RemindersPage onNavigate={setCurrentPage} />;
-      default:
-        return <HomePage onNavigate={setCurrentPage} />;
+    const newTask = {
+      title,
+      type,
+      priority,
+      deadline,
+      notes,
+      user_id: user.id, // 2. ADD THE USER ID TO THE NEW TASK OBJECT
+    };
+
+    const { error } = await supabase.from("tasks").insert(newTask);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Task created successfully!");
+      navigate("/");
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header onNavigate={setCurrentPage} currentPage={currentPage} />
-      {renderPage()}
+    <div className="max-w-4xl mx-auto py-8">
+      <h1 className="text-2xl font-bold mb-6">Add New Task</h1>
+      <TaskForm onSubmit={createTask} />
     </div>
   );
 };
 
-export default Index;
+export default NewTaskPage;
