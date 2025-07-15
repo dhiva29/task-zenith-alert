@@ -13,6 +13,38 @@ export const useAuth = () => {
   useEffect(() => {
     let mounted = true;
     
+    // Check for existing session first
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!mounted) return;
+      
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        try {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          if (mounted) {
+            setProfile(profileData);
+          }
+        } catch (error) {
+          console.error('Profile fetch error:', error);
+        }
+      } else {
+        setProfile(null);
+      }
+      
+      if (mounted) {
+        setLoading(false);
+      }
+    };
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -22,15 +54,18 @@ export const useAuth = () => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single();
-          
-          if (mounted) {
-            setProfile(profileData);
+          try {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .single();
+            
+            if (mounted) {
+              setProfile(profileData);
+            }
+          } catch (error) {
+            console.error('Profile fetch error:', error);
           }
         } else {
           setProfile(null);
@@ -42,32 +77,7 @@ export const useAuth = () => {
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        // Fetch user profile
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .single();
-        
-        if (mounted) {
-          setProfile(profileData);
-        }
-      } else {
-        setProfile(null);
-      }
-      
-      if (mounted) {
-        setLoading(false);
-      }
-    });
+    checkSession();
 
     return () => {
       mounted = false;
