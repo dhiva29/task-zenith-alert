@@ -44,4 +44,5 @@ export interface PlacementInfo {
   jobRole: string;
   ctcLpa: string;
   deadline: Date;
+  prePlacementTalk?: Date;
 }

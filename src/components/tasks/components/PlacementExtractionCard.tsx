@@ -18,6 +18,7 @@ interface PlacementExtractionCardProps {
   setCtcLpa: (ctc: string) => void;
   setDeadline: (deadline: string) => void;
   setTitle: (title: string) => void;
+  setPrePlacementTalk?: (talk: string) => void;
 }
 
 export const PlacementExtractionCard = ({
@@ -30,7 +31,8 @@ export const PlacementExtractionCard = ({
   ctcLpa,
   setCtcLpa,
   setDeadline,
-  setTitle
+  setTitle,
+  setPrePlacementTalk
 }: PlacementExtractionCardProps) => {
   const handlePlacementTextAnalysis = () => {
     if (!placementText.trim()) {
@@ -47,18 +49,31 @@ export const PlacementExtractionCard = ({
     if (extracted.companyName) setCompanyName(extracted.companyName);
     if (extracted.jobRole) setJobRole(extracted.jobRole);
     if (extracted.ctcLpa) setCtcLpa(extracted.ctcLpa);
+    
     if (extracted.deadline) {
       const formattedDate = extracted.deadline.toISOString().slice(0, 16);
       setDeadline(formattedDate);
+    }
+
+    if (extracted.prePlacementTalk && setPrePlacementTalk) {
+      const formattedTalk = extracted.prePlacementTalk.toISOString().slice(0, 16);
+      setPrePlacementTalk(formattedTalk);
     }
 
     // Auto-generate title
     const autoTitle = `${extracted.companyName || 'Company'} - ${extracted.jobRole || 'Position'} Application`;
     setTitle(autoTitle);
 
+    const extractedInfo = [];
+    if (extracted.companyName) extractedInfo.push(`Company: ${extracted.companyName}`);
+    if (extracted.jobRole) extractedInfo.push(`Role: ${extracted.jobRole}`);
+    if (extracted.ctcLpa) extractedInfo.push(`CTC: ${extracted.ctcLpa}`);
+    if (extracted.deadline) extractedInfo.push(`Deadline: ${extracted.deadline.toLocaleDateString()}`);
+    if (extracted.prePlacementTalk) extractedInfo.push(`Talk: ${extracted.prePlacementTalk.toLocaleDateString()}`);
+
     toast({
       title: "Information Extracted! ✨",
-      description: "Placement details have been automatically filled",
+      description: extractedInfo.length > 0 ? extractedInfo.join(' • ') : "Placement details have been automatically filled",
     });
   };
 

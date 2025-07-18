@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { TaskType, TaskPriority } from '@/types';
+import { NotificationService } from '@/services/notificationService';
 
 export const useTaskForm = (onNavigate: (page: string) => void) => {
   const { user } = useAuth();
@@ -18,6 +19,7 @@ export const useTaskForm = (onNavigate: (page: string) => void) => {
   const [companyName, setCompanyName] = useState('');
   const [jobRole, setJobRole] = useState('');
   const [ctcLpa, setCtcLpa] = useState('');
+  const [prePlacementTalk, setPrePlacementTalk] = useState('');
 
   const resetForm = () => {
     setTitle('');
@@ -27,6 +29,7 @@ export const useTaskForm = (onNavigate: (page: string) => void) => {
     setCompanyName('');
     setJobRole('');
     setCtcLpa('');
+    setPrePlacementTalk('');
     setPriority('medium');
   };
 
@@ -67,9 +70,23 @@ export const useTaskForm = (onNavigate: (page: string) => void) => {
 
       if (error) throw error;
 
+      // Schedule notifications for placement reminders
+      if (taskType === 'placement_reminder' && deadline) {
+        const taskId = Math.floor(Math.random() * 10000); // Generate unique ID
+        const deadlineDate = new Date(deadline);
+        const preTalkDate = prePlacementTalk ? new Date(prePlacementTalk) : undefined;
+        
+        await NotificationService.scheduleTaskReminders(
+          taskId,
+          title,
+          deadlineDate,
+          preTalkDate
+        );
+      }
+
       toast({
         title: "Success! 🎉",
-        description: "Task created successfully",
+        description: "Task created successfully with reminders scheduled",
       });
 
       resetForm();
@@ -97,6 +114,7 @@ export const useTaskForm = (onNavigate: (page: string) => void) => {
     companyName,
     jobRole,
     ctcLpa,
+    prePlacementTalk,
     
     // Setters
     setTaskType,
@@ -108,6 +126,7 @@ export const useTaskForm = (onNavigate: (page: string) => void) => {
     setCompanyName,
     setJobRole,
     setCtcLpa,
+    setPrePlacementTalk,
     
     // Handlers
     handleSubmit,

@@ -22,6 +22,7 @@ export const AddTaskPage = ({ onNavigate }: AddTaskPageProps) => {
     companyName,
     jobRole,
     ctcLpa,
+    prePlacementTalk,
     setTaskType,
     setTitle,
     setDeadline,
@@ -31,6 +32,7 @@ export const AddTaskPage = ({ onNavigate }: AddTaskPageProps) => {
     setCompanyName,
     setJobRole,
     setCtcLpa,
+    setPrePlacementTalk,
     handleSubmit
   } = useTaskForm(onNavigate);
 
@@ -59,9 +61,10 @@ export const AddTaskPage = ({ onNavigate }: AddTaskPageProps) => {
                 jobRole={jobRole}
                 setJobRole={setJobRole}
                 ctcLpa={ctcLpa}
-                setCtcLpa={setCtcLpa}
-                setDeadline={setDeadline}
-                setTitle={setTitle}
+              setCtcLpa={setCtcLpa}
+              setDeadline={setDeadline}
+              setTitle={setTitle}
+              setPrePlacementTalk={setPrePlacementTalk}
               />
             )}
 
@@ -76,6 +79,8 @@ export const AddTaskPage = ({ onNavigate }: AddTaskPageProps) => {
               notes={notes}
               setNotes={setNotes}
               taskType={taskType}
+              prePlacementTalk={prePlacementTalk}
+              setPrePlacementTalk={setPrePlacementTalk}
             />
 
             {/* Action Buttons */}

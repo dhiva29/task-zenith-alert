@@ -14,6 +14,8 @@ interface TaskBasicFieldsProps {
   notes: string;
   setNotes: (notes: string) => void;
   taskType: TaskType;
+  prePlacementTalk?: string;
+  setPrePlacementTalk?: (talk: string) => void;
 }
 
 export const TaskBasicFields = ({
@@ -25,7 +27,9 @@ export const TaskBasicFields = ({
   setPriority,
   notes,
   setNotes,
-  taskType
+  taskType,
+  prePlacementTalk,
+  setPrePlacementTalk
 }: TaskBasicFieldsProps) => {
   const priorityOptions = [
     { value: 'low', label: 'Low', color: 'text-green-600' },
@@ -49,7 +53,7 @@ export const TaskBasicFields = ({
       {/* Deadline and Priority */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Deadline *</Label>
+          <Label>Application Deadline *</Label>
           <Input
             type="datetime-local"
             value={deadline}
@@ -74,6 +78,19 @@ export const TaskBasicFields = ({
           </Select>
         </div>
       </div>
+
+      {/* Pre-placement Talk (for placement reminders only) */}
+      {taskType === 'placement_reminder' && setPrePlacementTalk && (
+        <div className="space-y-2">
+          <Label>Pre-placement Talk (Optional)</Label>
+          <Input
+            type="datetime-local"
+            value={prePlacementTalk || ''}
+            onChange={(e) => setPrePlacementTalk(e.target.value)}
+            placeholder="When is the company presentation?"
+          />
+        </div>
+      )}
 
       {/* Notes */}
       <div className="space-y-2">
