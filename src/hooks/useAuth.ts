@@ -13,71 +13,68 @@ export const useAuth = () => {
   useEffect(() => {
     let mounted = true;
     
-    // Check for existing session first
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!mounted) return;
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        try {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single();
-          
-          if (mounted) {
-            setProfile(profileData);
-          }
-        } catch (error) {
-          console.error('Profile fetch error:', error);
-        }
-      } else {
-        setProfile(null);
-      }
-      
-      if (mounted) {
-        setLoading(false);
-      }
-    };
-    
-    // Set up auth state listener
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!mounted) return;
+        
+        console.log('Auth state change:', event, !!session?.user);
         
         setSession(session);
         setUser(session?.user ?? null);
+        setLoading(false);
         
-        if (session?.user) {
-          try {
-            const { data: profileData } = await supabase
+        // Fetch profile data if user exists
+        if (session?.user && mounted) {
+          setTimeout(() => {
+            supabase
               .from('profiles')
               .select('*')
               .eq('user_id', session.user.id)
-              .single();
-            
-            if (mounted) {
-              setProfile(profileData);
-            }
-          } catch (error) {
-            console.error('Profile fetch error:', error);
-          }
+              .single()
+              .then(({ data: profileData, error }) => {
+                if (mounted && !error) {
+                  setProfile(profileData);
+                }
+                if (error) {
+                  console.error('Profile fetch error:', error);
+                }
+              });
+          }, 0);
         } else {
           setProfile(null);
-        }
-        
-        if (mounted) {
-          setLoading(false);
         }
       }
     );
 
-    checkSession();
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
+      console.log('Initial session check:', !!session?.user);
+      
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+      
+      if (session?.user && mounted) {
+        setTimeout(() => {
+          supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .single()
+            .then(({ data: profileData, error }) => {
+              if (mounted && !error) {
+                setProfile(profileData);
+              }
+              if (error) {
+                console.error('Profile fetch error:', error);
+              }
+            });
+        }, 0);
+      }
+    });
 
     return () => {
       mounted = false;
